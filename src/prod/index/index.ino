@@ -1,14 +1,9 @@
-/*
-  To be tested
-    1. Error(pressure) for 250 to 860 SPS
-*/
-
 #include <Adafruit_ADS1X15.h>
 
 #define PORT_SPEED 115200
 
 #define INIT_DELAY 4978
-#define ADDITIONAL_DELAY 78  // 250 SPS => 20ms + 30ms = 50ms target period
+#define POLLING_INTERVAL 100
 
 #define MODULE_1_ADDRESS 0x48
 #define CHANNEL_1 0
@@ -26,54 +21,60 @@ uint16_t adc2;
 uint16_t adc3;
 uint16_t adc4;
 
-unsigned long timeStamp;
+unsigned long sensPollTimeStamp;
+unsigned long currentTimeStamp;
 
 void setup() {
+  sensPollTimeStamp = millis();
+
   Serial.begin(PORT_SPEED);
 
-  ada.setDataRate(RATE_ADS1115_250SPS);
+  ada.setDataRate(RATE_ADS1115_250SPS);  // 250 samples per second - 860 max, see <Adafruit_ADS1X15.h>
   ada.begin();
 
   delay(INIT_DELAY);
 }
 
 void loop() {
-  timeStamp = millis();
-  adc1 = ada.readADC_SingleEnded(CHANNEL_1);
-  adc2 = ada.readADC_SingleEnded(CHANNEL_2);
-  adc3 = ada.readADC_SingleEnded(CHANNEL_3);
-  adc4 = ada.readADC_SingleEnded(CHANNEL_4);
+  currentTimeStamp = millis();
 
-  frame[0] = 0;
-  frame[1] = 0;
-  frame[2] = 0;
-  frame[3] = MODULE_1_ADDRESS;
+  if (currentTimeStamp - sensPollTimeStamp >= POLLING_INTERVAL) {
+    sensPollTimeStamp = currentTimeStamp;
 
-  frame[9] = lowByte(timeStamp);
-  timeStamp >>= 8;
-  frame[8] = lowByte(timeStamp);
-  timeStamp >>= 8;
-  frame[7] = 2;
-  frame[6] = lowByte(timeStamp);
-  timeStamp >>= 8;
-  frame[5] = lowByte(timeStamp);
-  timeStamp >>= 8;
-  frame[4] = 1;
+    adc1 = ada.readADC_SingleEnded(CHANNEL_1);
+    adc2 = ada.readADC_SingleEnded(CHANNEL_2);
+    adc3 = ada.readADC_SingleEnded(CHANNEL_3);
+    adc4 = ada.readADC_SingleEnded(CHANNEL_4);
 
-  frame[10] = 3;
-  frame[11] = highByte(adc1);
-  frame[12] = lowByte(adc1);
-  frame[13] = 4;
-  frame[14] = highByte(adc2);
-  frame[15] = lowByte(adc2);
-  frame[16] = 5;
-  frame[17] = highByte(adc3);
-  frame[18] = lowByte(adc3);
-  frame[19] = 6;
-  frame[20] = highByte(adc4);
-  frame[21] = lowByte(adc4);
+    frame[0] = 0;
+    frame[1] = 0;
+    frame[2] = 0;
+    frame[3] = MODULE_1_ADDRESS;
 
-  Serial.write(frame, FRAME_LEN);
+    frame[9] = lowByte(currentTimeStamp);
+    currentTimeStamp >>= 8;
+    frame[8] = lowByte(currentTimeStamp);
+    currentTimeStamp >>= 8;
+    frame[7] = 2;
+    frame[6] = lowByte(currentTimeStamp);
+    currentTimeStamp >>= 8;
+    frame[5] = lowByte(currentTimeStamp);
+    currentTimeStamp >>= 8;
+    frame[4] = 1;
 
-  delay(ADDITIONAL_DELAY);
+    frame[10] = 3;
+    frame[11] = highByte(adc1);
+    frame[12] = lowByte(adc1);
+    frame[13] = 4;
+    frame[14] = highByte(adc2);
+    frame[15] = lowByte(adc2);
+    frame[16] = 5;
+    frame[17] = highByte(adc3);
+    frame[18] = lowByte(adc3);
+    frame[19] = 6;
+    frame[20] = highByte(adc4);
+    frame[21] = lowByte(adc4);
+
+    Serial.write(frame, FRAME_LEN);
+  }
 }
