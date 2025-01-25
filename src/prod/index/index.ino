@@ -16,10 +16,10 @@ Adafruit_ADS1115 ada;
 const byte FRAME_LEN = 22;  // byte
 byte frame[FRAME_LEN];
 
-uint16_t adc1;
-uint16_t adc2;
-uint16_t adc3;
-uint16_t adc4;
+uint16_t sensValue1;
+uint16_t sensValue2;
+uint16_t sensValue3;
+uint16_t sensValue4;
 
 unsigned long sensPollTimeStamp;
 unsigned long currentTimeStamp;
@@ -41,10 +41,10 @@ void loop() {
   if (currentTimeStamp - sensPollTimeStamp >= POLLING_INTERVAL) {
     sensPollTimeStamp = currentTimeStamp;
 
-    adc1 = ada.readADC_SingleEnded(CHANNEL_1);
-    adc2 = ada.readADC_SingleEnded(CHANNEL_2);
-    adc3 = ada.readADC_SingleEnded(CHANNEL_3);
-    adc4 = ada.readADC_SingleEnded(CHANNEL_4);
+    sensValue1 = ada.readADC_SingleEnded(CHANNEL_1);
+    sensValue2 = ada.readADC_SingleEnded(CHANNEL_2);
+    sensValue3 = ada.readADC_SingleEnded(CHANNEL_3);
+    sensValue4 = ada.readADC_SingleEnded(CHANNEL_4);
 
     frame[0] = 0;
     frame[1] = 0;
@@ -63,17 +63,17 @@ void loop() {
     frame[4] = 1;
 
     frame[10] = 3;
-    frame[11] = highByte(adc1);
-    frame[12] = lowByte(adc1);
+    frame[11] = highByte(sensValue1);
+    frame[12] = lowByte(sensValue1);
     frame[13] = 4;
-    frame[14] = highByte(adc2);
-    frame[15] = lowByte(adc2);
+    frame[14] = highByte(sensValue2);
+    frame[15] = lowByte(sensValue2);
     frame[16] = 5;
-    frame[17] = highByte(adc3);
-    frame[18] = lowByte(adc3);
+    frame[17] = highByte(sensValue3);
+    frame[18] = lowByte(sensValue3);
     frame[19] = 6;
-    frame[20] = highByte(adc4);
-    frame[21] = lowByte(adc4);
+    frame[20] = highByte(sensValue4);
+    frame[21] = lowByte(sensValue4);
 
     Serial.write(frame, FRAME_LEN);
   }
