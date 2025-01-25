@@ -2,7 +2,7 @@
 
 #define PORT_SPEED 115200
 
-#define INIT_DELAY 4978
+#define INIT_DELAY 5000
 #define POLLING_INTERVAL 100
 
 #define MODULE_1_ADDRESS 0x48
@@ -11,7 +11,7 @@
 #define CHANNEL_3 2
 #define CHANNEL_4 3
 
-Adafruit_ADS1115 ada;
+Adafruit_ADS1115 converterModule;
 
 const byte FRAME_LEN = 22;  // byte
 byte frame[FRAME_LEN];
@@ -29,8 +29,8 @@ void setup() {
 
   Serial.begin(PORT_SPEED);
 
-  ada.setDataRate(RATE_ADS1115_250SPS);  // 250 samples per second - 860 max, see <Adafruit_ADS1X15.h>
-  ada.begin();
+  converterModule.setDataRate(RATE_ADS1115_250SPS);  // 250 samples per second - 860 max, see <Adafruit_ADS1X15.h>
+  converterModule.begin();
 
   delay(INIT_DELAY);
 }
@@ -41,10 +41,10 @@ void loop() {
   if (currentTimeStamp - sensPollTimeStamp >= POLLING_INTERVAL) {
     sensPollTimeStamp = currentTimeStamp;
 
-    sensValue1 = ada.readADC_SingleEnded(CHANNEL_1);
-    sensValue2 = ada.readADC_SingleEnded(CHANNEL_2);
-    sensValue3 = ada.readADC_SingleEnded(CHANNEL_3);
-    sensValue4 = ada.readADC_SingleEnded(CHANNEL_4);
+    sensValue1 = converterModule.readADC_SingleEnded(CHANNEL_1);
+    sensValue2 = converterModule.readADC_SingleEnded(CHANNEL_2);
+    sensValue3 = converterModule.readADC_SingleEnded(CHANNEL_3);
+    sensValue4 = converterModule.readADC_SingleEnded(CHANNEL_4);
 
     frame[0] = 0;
     frame[1] = 0;
