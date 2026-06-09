@@ -21,11 +21,11 @@ uint16_t sensValue2;
 uint16_t sensValue3;
 uint16_t sensValue4;
 
-uint32_t sensPollTimeStamp;
-uint32_t currentTimeStamp;
+uint32_t lastSensPollTime;
+uint32_t currentTime;
 
 void setup() {
-  sensPollTimeStamp = millis();
+  lastSensPollTime = millis();
 
   Serial.begin(PORT_SPEED);
 
@@ -36,10 +36,10 @@ void setup() {
 }
 
 void loop() {
-  currentTimeStamp = millis();
+  currentTime = millis();
 
-  if (currentTimeStamp - sensPollTimeStamp >= POLLING_INTERVAL) {
-    sensPollTimeStamp = currentTimeStamp;
+  if (currentTime - lastSensPollTime >= POLLING_INTERVAL) {
+    lastSensPollTime = currentTime;
 
     sensValue1 = converterModule.readADC_SingleEnded(CHANNEL_1);
     sensValue2 = converterModule.readADC_SingleEnded(CHANNEL_2);
@@ -61,23 +61,19 @@ void loop() {
     frame[16] = 5;
     frame[19] = 6;
 
-    frame[9] = lowByte(currentTimeStamp);
-    currentTimeStamp >>= 8;
-    frame[8] = lowByte(currentTimeStamp);
-    currentTimeStamp >>= 8;
-    frame[6] = lowByte(currentTimeStamp);
-    currentTimeStamp >>= 8;
-    frame[5] = lowByte(currentTimeStamp);
-    currentTimeStamp >>= 8;
+    frame[9] = lastSensPollTime & 0xff;
+    frame[8] = (lastSensPollTime >> 8) & 0xff;
+    frame[6] = (lastSensPollTime >> 16) & 0xff;
+    frame[5] = (lastSensPollTime >> 24) & 0xff;
 
-    frame[11] = highByte(sensValue1);
-    frame[12] = lowByte(sensValue1);
-    frame[14] = highByte(sensValue2);
-    frame[15] = lowByte(sensValue2);
-    frame[17] = highByte(sensValue3);
-    frame[18] = lowByte(sensValue3);
-    frame[20] = highByte(sensValue4);
-    frame[21] = lowByte(sensValue4);
+    frame[11] = (sensValue1 >> 8) & 0xff;
+    frame[12] = sensValue1 & 0xff;
+    frame[14] = (sensValue2 >> 8) & 0xff;
+    frame[15] = sensValue2 & 0xff;
+    frame[17] = (sensValue3 >> 8) & 0xff;
+    frame[18] = sensValue3 & 0xff;
+    frame[20] = (sensValue4 >> 8) & 0xff;
+    frame[21] = sensValue4 & 0xff;
 
     Serial.write(frame, FRAME_LEN);
   }
