@@ -21,8 +21,8 @@ uint16_t sensValue2;
 uint16_t sensValue3;
 uint16_t sensValue4;
 
-unsigned long sensPollTimeStamp;
-unsigned long currentTimeStamp;
+uint32_t sensPollTimeStamp;
+uint32_t currentTimeStamp;
 
 void setup() {
   sensPollTimeStamp = millis();
