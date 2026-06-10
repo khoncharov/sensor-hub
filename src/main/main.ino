@@ -56,50 +56,48 @@ void loop() {
 
     itemsNum += 1;
 
-    if (itemsNum < ITEMS_NUM_TO_SEND) {
-      continue;
+    if (itemsNum >= ITEMS_NUM_TO_SEND) {
+      channel1AvgValue = channel1ValueSum / ITEMS_NUM_TO_SEND;
+      channel2AvgValue = channel2ValueSum / ITEMS_NUM_TO_SEND;
+      channel3AvgValue = channel3ValueSum / ITEMS_NUM_TO_SEND;
+      channel4AvgValue = 0xffff; // channel 4 not used, but retained for future implementations
+      
+      channel1ValueSum = 0;
+      channel2ValueSum = 0;
+      channel3ValueSum = 0;
+      
+      itemsNum = 0;
+      
+      // Init bytes
+      frame[0] = 0;
+      frame[1] = 0;
+      frame[2] = 0;
+      
+      frame[3] = MODULE_1_ADDRESS;
+      
+      // Control bytes
+      frame[4] = 1;
+      frame[7] = 2;
+      frame[10] = 3;
+      frame[13] = 4;
+      frame[16] = 5;
+      frame[19] = 6;
+      
+      frame[9] = lastSensPollTime & 0xff;
+      frame[8] = (lastSensPollTime >> 8) & 0xff;
+      frame[6] = (lastSensPollTime >> 16) & 0xff;
+      frame[5] = (lastSensPollTime >> 24) & 0xff;
+      
+      frame[11] = (channel1AvgValue >> 8) & 0xff;
+      frame[12] = channel1AvgValue & 0xff;
+      frame[14] = (channel2AvgValue >> 8) & 0xff;
+      frame[15] = channel2AvgValue & 0xff;
+      frame[17] = (channel3AvgValue >> 8) & 0xff;
+      frame[18] = channel3AvgValue & 0xff;
+      frame[20] = (channel4AvgValue >> 8) & 0xff;
+      frame[21] = channel4AvgValue & 0xff;
+      
+      Serial.write(frame, FRAME_LEN);
     }
-
-    channel1AvgValue = channel1ValueSum / ITEMS_NUM_TO_SEND;
-    channel2AvgValue = channel2ValueSum / ITEMS_NUM_TO_SEND;
-    channel3AvgValue = channel3ValueSum / ITEMS_NUM_TO_SEND;
-    channel4AvgValue = 0xffff; // channel 4 not used, but retained for future implementations
-
-    channel1ValueSum = 0;
-    channel2ValueSum = 0;
-    channel3ValueSum = 0;
-    
-    itemsNum = 0;
-
-    // Init bytes
-    frame[0] = 0;
-    frame[1] = 0;
-    frame[2] = 0;
-
-    frame[3] = MODULE_1_ADDRESS;
-
-    // Control bytes
-    frame[4] = 1;
-    frame[7] = 2;
-    frame[10] = 3;
-    frame[13] = 4;
-    frame[16] = 5;
-    frame[19] = 6;
-
-    frame[9] = lastSensPollTime & 0xff;
-    frame[8] = (lastSensPollTime >> 8) & 0xff;
-    frame[6] = (lastSensPollTime >> 16) & 0xff;
-    frame[5] = (lastSensPollTime >> 24) & 0xff;
-
-    frame[11] = (channel1AvgValue >> 8) & 0xff;
-    frame[12] = channel1AvgValue & 0xff;
-    frame[14] = (channel2AvgValue >> 8) & 0xff;
-    frame[15] = channel2AvgValue & 0xff;
-    frame[17] = (channel3AvgValue >> 8) & 0xff;
-    frame[18] = channel3AvgValue & 0xff;
-    frame[20] = (channel4AvgValue >> 8) & 0xff;
-    frame[21] = channel4AvgValue & 0xff;
-
-    Serial.write(frame, FRAME_LEN);
   }
 }
