@@ -37,9 +37,8 @@ void setup() {
 
   Serial.begin(PORT_SPEED);
 
-  // transfer rates see <Adafruit_ADS1X15.h>
-  converterModule.setDataRate(RATE_ADS1115_250SPS);
   converterModule.begin();
+  converterModule.setDataRate(RATE_ADS1115_250SPS);
 
   delay(INIT_DELAY);
 }
