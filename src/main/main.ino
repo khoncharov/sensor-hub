@@ -1,17 +1,19 @@
 #include <Adafruit_ADS1X15.h>
 
 #define PORT_SPEED 115200
-#define INIT_DELAY 5000
+#define INIT_DELAY_MS 5000
 
 // number of points for averaging
 #define ITEMS_NUM_TO_SEND 4
-#define POLL_INTERVAL 25
+#define POLL_INTERVAL_MS 25
 
 #define MODULE_1_ADDRESS 0x48
 #define CHANNEL_1 0
 #define CHANNEL_2 1
 #define CHANNEL_3 2
 #define CHANNEL_4 3
+
+#define CHANNEL_NOT_USED 0xffff
 
 Adafruit_ADS1115 converterModule;
 
@@ -40,14 +42,14 @@ void setup() {
   converterModule.begin();
   converterModule.setDataRate(RATE_ADS1115_250SPS);
 
-  delay(INIT_DELAY);
+  delay(INIT_DELAY_MS);
 }
 
 void loop() {
   currentTime = millis();
 
-  if (currentTime - lastSensPollTime >= POLL_INTERVAL) {
-    lastSensPollTime = currentTime;
+  if (currentTime - lastSensPollTime >= POLL_INTERVAL_MS) {
+    lastSensPollTime += POLL_INTERVAL_MS;
 
     channel1ValueSum += converterModule.readADC_SingleEnded(CHANNEL_1);
     channel2ValueSum += converterModule.readADC_SingleEnded(CHANNEL_2);
@@ -59,7 +61,7 @@ void loop() {
       channel1AvgValue = channel1ValueSum / ITEMS_NUM_TO_SEND;
       channel2AvgValue = channel2ValueSum / ITEMS_NUM_TO_SEND;
       channel3AvgValue = channel3ValueSum / ITEMS_NUM_TO_SEND;
-      channel4AvgValue = 0xffff; // channel 4 not used, but retained for future implementations
+      channel4AvgValue = CHANNEL_NOT_USED;
       
       channel1ValueSum = 0;
       channel2ValueSum = 0;
