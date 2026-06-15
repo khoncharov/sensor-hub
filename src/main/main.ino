@@ -34,15 +34,14 @@ uint32_t currentTime;
 
 uint8_t itemsNum = 0;
 
-void setup() {
-  lastSensPollTime = millis();
-
+void setup() {  
   Serial.begin(PORT_SPEED);
-
+  
   converterModule.begin();
   converterModule.setDataRate(RATE_ADS1115_250SPS);
-
+  
   delay(INIT_DELAY_MS);
+  lastSensPollTime = millis();
 }
 
 void loop() {
